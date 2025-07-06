@@ -1,0 +1,22 @@
+Reporte de Contaminación y Predicción
+
+Zona: Centro
+Actual: CO=0.50, SO2=4.70, NO2=29.60, PM2.5=21.70
+Predicción 24h: CO=0.98, SO2=6.95, NO2=41.92, PM2.5=31.42
+-----------------------------
+Zona: Guamani
+Actual: CO=0.80, SO2=5.90, NO2=34.90, PM2.5=26.60
+Predicción 24h: CO=1.01, SO2=6.88, NO2=42.14, PM2.5=31.56
+-----------------------------
+Zona: Cotocollao
+Actual: CO=0.80, SO2=5.90, NO2=36.90, PM2.5=27.90
+Predicción 24h: CO=0.98, SO2=6.71, NO2=42.11, PM2.5=31.49
+-----------------------------
+Zona: Los Chillos
+Actual: CO=0.80, SO2=5.90, NO2=37.10, PM2.5=27.70
+Predicción 24h: CO=0.98, SO2=6.61, NO2=41.87, PM2.5=31.25
+-----------------------------
+Zona: Carapungo
+Actual: CO=0.80, SO2=5.90, NO2=36.80, PM2.5=27.50
+Predicción 24h: CO=0.98, SO2=6.60, NO2=41.69, PM2.5=31.09
+-----------------------------
