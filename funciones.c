@@ -39,9 +39,9 @@ float ICA_VALUES[] = {0, 50, 100, 150, 200, 300, 400, 500};
 char* ICA_CATEGORIES[] = {
     "Buena",
     "Moderada", 
-    "Dañina para grupos sensibles",
-    "Dañina para la salud",
-    "Muy dañina para la salud",
+    "Danina para grupos sensibles",
+    "Danina para la salud",
+    "Muy danina para la salud",
     "Peligrosa",
     "Extremadamente peligrosa"
 };
@@ -52,7 +52,7 @@ char* ICA_COLORS[] = {
     "Amarillo",
     "Naranja", 
     "Rojo",
-    "Púrpura",
+    "Purpura",
     "Granate",
     "Granate"
 };
@@ -188,25 +188,6 @@ void cargarZonas(Zona zonas[], int *cantidad, const char* filename) {
     fclose(file);
 }
 
-// Guardar datos de zonas en archivo (modificada para incluir fecha)
-void guardarZonas(Zona zonas[], int cantidad, const char* filename) {
-    FILE *file = fopen(filename, "a");
-    if (!file) return;
-    
-    char fechaHoy[20];
-    obtenerFechaActual(fechaHoy);
-    
-    for (int i = 0; i < cantidad; i++) {
-        // Guardar fecha actual y todos los contaminantes actuales
-        fprintf(file, "%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-            fechaHoy, zonas[i].nombre, zonas[i].pm25_actual, zonas[i].no2_actual, 
-            zonas[i].so2_actual, zonas[i].co_actual, zonas[i].pm10_actual, 
-            zonas[i].o3_actual, zonas[i].co2_actual, zonas[i].temperatura, 
-            zonas[i].viento, zonas[i].humedad);
-    }
-    fclose(file);
-}
-
 // Ingresar datos de una zona y comparar con histórico (modificada)
 int ingresarDatosZona(Zona* zona, const char* filename) {
     char fechaHoy[20];
@@ -226,25 +207,74 @@ int ingresarDatosZona(Zona* zona, const char* filename) {
     
     // Solicitar todos los contaminantes
     printf("CO actual (ppm): ");
-    scanf("%f", &zona->co_actual);
+    if (scanf("%f", &zona->co_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n'); // limpiar buffer
+        scanf("%f", &zona->co_actual);
+    }
+
     printf("SO2 actual (ug/m3): ");
-    scanf("%f", &zona->so2_actual);
+    if (scanf("%f", &zona->so2_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->so2_actual);
+    }
+
     printf("NO2 actual (ug/m3): ");
-    scanf("%f", &zona->no2_actual);
+    if (scanf("%f", &zona->no2_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->no2_actual);
+    }
+
     printf("PM2.5 actual (ug/m3): ");
-    scanf("%f", &zona->pm25_actual);
+    if (scanf("%f", &zona->pm25_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->pm25_actual);
+    }
+
     printf("PM10 actual (ug/m3): ");
-    scanf("%f", &zona->pm10_actual);
+    if (scanf("%f", &zona->pm10_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->pm10_actual);
+    }
+
     printf("O3 actual (ug/m3): ");
-    scanf("%f", &zona->o3_actual);
+    if (scanf("%f", &zona->o3_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->o3_actual);
+    }
+
     printf("CO2 actual (ppm): ");
-    scanf("%f", &zona->co2_actual);
+    if (scanf("%f", &zona->co2_actual) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->co2_actual);
+    }
+
     printf("Temperatura (°C): ");
-    scanf("%f", &zona->temperatura);
+    if (scanf("%f", &zona->temperatura) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->temperatura);
+    }
+
     printf("Velocidad del viento (km/h): ");
-    scanf("%f", &zona->viento);
+    if (scanf("%f", &zona->viento) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->viento);
+    }
+
     printf("Humedad (%%): ");
-    scanf("%f", &zona->humedad);
+    if (scanf("%f", &zona->humedad) != 1) {
+        printf("Ingrese un valor numerico: ");
+        while (getchar() != '\n');
+        scanf("%f", &zona->humedad);
+    }
     
     // Desplazar históricos y agregar el valor actual
     for (int i = DIAS_HISTORICO-1; i > 0; i--) {
@@ -293,7 +323,7 @@ void guardarZonaIndividual(Zona* zona, const char* filename) {
 // Emitir alertas si la predicción supera límites
 void emitirAlertas(Zona z[], int n, PrediccionCompleta p[])
 {
-    puts("\nAlertas preventivas para las próximas 24h:");
+    puts("\nAlertas preventivas para las proximas 24h:");
     for (int i=0;i<n;++i){
         int alerta = 0;
         if (p[i].co_pred   > LIMITE_CO)   {printf("Zona %s: ALERTA CO\n",  z[i].nombre); alerta=1;}
@@ -315,6 +345,19 @@ void generarRecomendaciones(Zona z[], int n, PrediccionCompleta p[])
     fgets(nombre,MAX_NOMBRE,stdin);
     nombre[strcspn(nombre,"\n")] = '\0';
 
+    // Validación: verificar si la zona existe
+    int encontrada = 0;
+    for(int i=0;i<n;++i){
+        if(strcmp(z[i].nombre,nombre)==0){
+            encontrada = 1;
+            break;
+        }
+    }
+    if (!encontrada) {
+        puts("No existen recomendaciones para la zona");
+        return;
+    }
+
     for(int i=0;i<n;++i){
         if(strcmp(z[i].nombre,nombre)==0){
             int riesgo = (p[i].co_pred   > LIMITE_CO   || z[i].co_actual   > LIMITE_CO)   ||
@@ -326,7 +369,7 @@ void generarRecomendaciones(Zona z[], int n, PrediccionCompleta p[])
                           (p[i].co2_pred  > LIMITE_CO2  || z[i].co2_actual  > LIMITE_CO2);
 
             if (!riesgo){
-                puts("Niveles dentro de límites aceptables.");
+                puts("Niveles dentro de limites aceptables.");
                 return;
             }
 
@@ -341,20 +384,38 @@ void generarRecomendaciones(Zona z[], int n, PrediccionCompleta p[])
             return;
         }
     }
-    puts("Zona no encontrada.");
 }
 
 // Calcular promedios históricos de los últimos 30 días
 void calcularPromediosHistoricos(Zona z[], int n)
 {
-    puts("\nPromedios históricos (últimos 30 días):");
+    puts("\nPromedios historicos (ultimos 30 días):");
     for(int i=0;i<n;++i){
         float prom_co=0,prom_so2=0,prom_no2=0,prom_pm25=0,
               prom_pm10=0,prom_o3=0,prom_co2=0;
 
-        int dias=30;                               /* se toman 30 */
-        if (dias>DIAS_HISTORICO) dias=DIAS_HISTORICO;
-
+        // Contar registros válidos (asumimos que un registro es válido si al menos uno de los contaminantes es distinto de cero)
+        int registros_validos = 0;
+        for(int j=0;j<DIAS_HISTORICO;++j){
+            if (z[i].co_hist[j]!=0 || z[i].so2_hist[j]!=0 || z[i].no2_hist[j]!=0 ||
+                z[i].pm25_hist[j]!=0 || z[i].pm10_hist[j]!=0 || z[i].o3_hist[j]!=0 || z[i].co2_hist[j]!=0) {
+                registros_validos++;
+            } else {
+                break; // asumimos que los registros válidos están al principio
+            }
+        }
+        int dias = 30;
+        if (registros_validos < dias) {
+            dias = registros_validos;
+            printf("\nZona: %s\nSolo existen %d registros historicos. El promedio se calcula con esos registros.\n",z[i].nombre,dias);
+        } else {
+            printf("\nZona: %s\n",z[i].nombre);
+        }
+        if (dias == 0) {
+            printf("No hay datos historicos para esta zona.\n");
+            continue;
+        }
+        
         for(int j=0;j<dias;++j){
             prom_co   += z[i].co_hist[j];
             prom_so2  += z[i].so2_hist[j];
@@ -372,12 +433,11 @@ void calcularPromediosHistoricos(Zona z[], int n)
         prom_o3   /= dias;
         prom_co2  /= dias;
 
-        printf("\nZona: %s\n",z[i].nombre);
         printf(" CO:   %.2f ppm  (%s)\n",prom_co,   prom_co  >LIMITE_CO   ?"ALTO":"OK");
         printf(" SO2:  %.2f ppb  (%s)\n",prom_so2,  prom_so2 >LIMITE_SO2 ?"ALTO":"OK");
         printf(" NO2:  %.2f ppb  (%s)\n",prom_no2,  prom_no2 >LIMITE_NO2 ?"ALTO":"OK");
-        printf(" PM2.5 %.2f ug/m (%s)\n",prom_pm25,prom_pm25>LIMITE_PM25?"ALTO":"OK");
-        printf(" PM10  %.2f ug/m (%s)\n",prom_pm10,prom_pm10>LIMITE_PM10?"ALTO":"OK");
+        printf(" PM2.5 %.2f ug/m3 (%s)\n",prom_pm25,prom_pm25>LIMITE_PM25?"ALTO":"OK");
+        printf(" PM10  %.2f ug/m3 (%s)\n",prom_pm10,prom_pm10>LIMITE_PM10?"ALTO":"OK");
         printf(" O3:   %.2f ppb  (%s)\n",prom_o3,   prom_o3  >LIMITE_O3  ?"ALTO":"OK");
         printf(" CO2:  %.2f ppm  (%s)\n",prom_co2,  prom_co2 >LIMITE_CO2 ?"ALTO":"OK");
     }
@@ -471,7 +531,7 @@ void mostrarICATodasZonas(Zona zonas[], int cantidad) {
         if (ica <= 50) {
             printf("Calidad del aire satisfactoria. Actividades al aire libre sin restricciones.\n");
         } else if (ica <= 100) {
-            printf("Calidad del aire aceptable. Personas sensibles pueden experimentar síntomas menores.\n");
+            printf("Calidad del aire aceptable. Personas sensibles pueden experimentar sintomas menores.\n");
         } else if (ica <= 150) {
             printf("Grupos sensibles deben reducir actividades prolongadas al aire libre.\n");
         } else if (ica <= 200) {
@@ -568,14 +628,41 @@ float factorClimatico(FactoresClimaticos* clima, const char* contaminante) {
 void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimaticos* clima_actual,PrediccionCompleta predicciones[]) {
     
     for (int i = 0; i < cantidad; i++) {
-        // Arrays para almacenar datos históricos
+        // Contar registros válidos (al menos un contaminante distinto de cero)
+        int registros_validos = 0;
+        for (int j = 0; j < DIAS_HISTORICO; ++j) {
+            if (zonas[i].co_hist[j]!=0 || zonas[i].so2_hist[j]!=0 || zonas[i].no2_hist[j]!=0 ||
+                zonas[i].pm25_hist[j]!=0 || zonas[i].pm10_hist[j]!=0 || zonas[i].o3_hist[j]!=0 || zonas[i].co2_hist[j]!=0) {
+                registros_validos++;
+            } else {
+                break; // asumimos que los registros válidos están al principio
+            }
+        }
+        if (registros_validos == 0) {
+            // No hay datos históricos, omitir predicción
+            predicciones[i].co_pred = 0;
+            predicciones[i].so2_pred = 0;
+            predicciones[i].no2_pred = 0;
+            predicciones[i].pm25_pred = 0;
+            predicciones[i].pm10_pred = 0;
+            predicciones[i].o3_pred = 0;
+            predicciones[i].co2_pred = 0;
+            predicciones[i].ica_predicho = 0;
+            strcpy(predicciones[i].categoria_predicha, "Sin datos");
+            strcpy(predicciones[i].color_predicho, "Sin datos");
+            strcpy(predicciones[i].contaminante_dominante_pred, "Sin datos");
+            predicciones[i].confianza = 0;
+            continue;
+        }
+        if (registros_validos < 7) {
+            printf("Advertencia: Zona %s solo tiene %d registros historicos para la prediccion.\n", zonas[i].nombre, registros_validos);
+        }
         float co_hist[DIAS_HISTORICO], so2_hist[DIAS_HISTORICO];
         float no2_hist[DIAS_HISTORICO], pm25_hist[DIAS_HISTORICO];
         float pm10_hist[DIAS_HISTORICO], o3_hist[DIAS_HISTORICO];
         float co2_hist[DIAS_HISTORICO];
-        
-        // Copiar datos históricos (asumiendo que están en la estructura Zona)
-        for (int j = 0; j < DIAS_HISTORICO; j++) {
+        // Copiar datos históricos
+        for (int j = 0; j < registros_validos; j++) {
             co_hist[j] = zonas[i].co_hist[j];
             so2_hist[j] = zonas[i].so2_hist[j];
             no2_hist[j] = zonas[i].no2_hist[j];
@@ -584,24 +671,19 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
             o3_hist[j] = zonas[i].o3_hist[j];
             co2_hist[j] = zonas[i].co2_hist[j];
         }
-        
         // Calcular tendencias
-        float tendencia_co = calcularTendencia(co_hist, DIAS_HISTORICO);
-        float tendencia_so2 = calcularTendencia(so2_hist, DIAS_HISTORICO);
-        float tendencia_no2 = calcularTendencia(no2_hist, DIAS_HISTORICO);
-        float tendencia_pm25 = calcularTendencia(pm25_hist, DIAS_HISTORICO);
-        float tendencia_pm10 = calcularTendencia(pm10_hist, DIAS_HISTORICO);
-        float tendencia_o3 = calcularTendencia(o3_hist, DIAS_HISTORICO);
-        float tendencia_co2 = calcularTendencia(co2_hist, DIAS_HISTORICO);
-        
-        // Calcular promedio ponderado base (tu método actual mejorado)
+        float tendencia_co = calcularTendencia(co_hist, registros_validos);
+        float tendencia_so2 = calcularTendencia(so2_hist, registros_validos);
+        float tendencia_no2 = calcularTendencia(no2_hist, registros_validos);
+        float tendencia_pm25 = calcularTendencia(pm25_hist, registros_validos);
+        float tendencia_pm10 = calcularTendencia(pm10_hist, registros_validos);
+        float tendencia_o3 = calcularTendencia(o3_hist, registros_validos);
+        float tendencia_co2 = calcularTendencia(co2_hist, registros_validos);
+        // Calcular promedio ponderado base
         float peso_total = 0, pred_co = 0, pred_so2 = 0, pred_no2 = 0, pred_pm25 = 0;
         float pred_pm10 = 0, pred_o3 = 0, pred_co2 = 0;
-        
-        for (int j = 0; j < DIAS_HISTORICO; j++) {
-            // Peso exponencial decreciente (más peso a días recientes)
+        for (int j = 0; j < registros_validos; j++) {
             float peso = exp(-j * 0.05); // Decaimiento exponencial
-            
             pred_co += co_hist[j] * peso;
             pred_so2 += so2_hist[j] * peso;
             pred_no2 += no2_hist[j] * peso;
@@ -611,8 +693,6 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
             pred_co2 += co2_hist[j] * peso;
             peso_total += peso;
         }
-        
-        // Predicciones base
         pred_co /= peso_total;
         pred_so2 /= peso_total;
         pred_no2 /= peso_total;
@@ -620,7 +700,6 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
         pred_pm10 /= peso_total;
         pred_o3 /= peso_total;
         pred_co2 /= peso_total;
-        
         // Aplicar factores de tendencia
         pred_co *= (1 + tendencia_co * 0.3);
         pred_so2 *= (1 + tendencia_so2 * 0.3);
@@ -629,7 +708,6 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
         pred_pm10 *= (1 + tendencia_pm10 * 0.3);
         pred_o3 *= (1 + tendencia_o3 * 0.3);
         pred_co2 *= (1 + tendencia_co2 * 0.3);
-        
         // Aplicar factores climáticos
         pred_co *= factorClimatico(clima_actual, "CO");
         pred_so2 *= factorClimatico(clima_actual, "SO2");
@@ -638,7 +716,6 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
         pred_pm10 *= factorClimatico(clima_actual, "PM10");
         pred_o3 *= factorClimatico(clima_actual, "O3");
         pred_co2 *= factorClimatico(clima_actual, "CO2");
-        
         // Aplicar factores estacionales
         pred_co *= factorDiaSemana(clima_actual->dia_semana, "CO");
         pred_so2 *= factorDiaSemana(clima_actual->dia_semana, "SO2");
@@ -647,7 +724,6 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
         pred_pm10 *= factorDiaSemana(clima_actual->dia_semana, "PM10");
         pred_o3 *= factorDiaSemana(clima_actual->dia_semana, "O3");
         pred_co2 *= factorDiaSemana(clima_actual->dia_semana, "CO2");
-        
         // Guardar predicciones
         predicciones[i].co_pred = pred_co;
         predicciones[i].so2_pred = pred_so2;
@@ -656,9 +732,7 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
         predicciones[i].pm10_pred = pred_pm10;
         predicciones[i].o3_pred = pred_o3;
         predicciones[i].co2_pred = pred_co2;
-        
         // Calcular ICA predicho
-        // Crear zona temporal para calcular ICA
         Zona zona_temp = zonas[i];
         zona_temp.co_actual = pred_co;
         zona_temp.so2_actual = pred_so2;
@@ -666,28 +740,24 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
         zona_temp.pm25_actual = pred_pm25;
         zona_temp.pm10_actual = pred_pm10;
         zona_temp.o3_actual = pred_o3;
-        // Nota: CO2 no se incluye en ICA pero se predice
-        
         char contaminante_dom[10], categoria[50], color[20];
         float ica_pred = calcularICAZona(&zona_temp, contaminante_dom, categoria, color);
-        
         predicciones[i].ica_predicho = ica_pred;
         strcpy(predicciones[i].categoria_predicha, categoria);
         strcpy(predicciones[i].color_predicho, color);
         strcpy(predicciones[i].contaminante_dominante_pred, contaminante_dom);
-        
         // Calcular confianza de la predicción
         float variabilidad = 0;
-        for (int j = 0; j < 7; j++) { // Últimos 7 días
+        int dias_conf = registros_validos < 7 ? registros_validos : 7;
+        for (int j = 0; j < dias_conf; j++) {
             float diff = fabs(co_hist[j] - pred_co) + fabs(so2_hist[j] - pred_so2) + 
                         fabs(no2_hist[j] - pred_no2) + fabs(pm25_hist[j] - pred_pm25) +
                         fabs(pm10_hist[j] - pred_pm10) + fabs(o3_hist[j] - pred_o3) +
                         fabs(co2_hist[j] - pred_co2);
             variabilidad += diff;
         }
-        variabilidad /= 7;
-        
-        // Confianza inversamente proporcional a la variabilidad
+        if (dias_conf > 0) variabilidad /= dias_conf;
+        else variabilidad = 0;
         predicciones[i].confianza = 1.0 / (1.0 + variabilidad * 0.01);
         if (predicciones[i].confianza > 0.95) predicciones[i].confianza = 0.95;
         if (predicciones[i].confianza < 0.3) predicciones[i].confianza = 0.3;
@@ -696,7 +766,7 @@ void predecirContaminacionAvanzada(Zona zonas[], int cantidad, FactoresClimatico
 
 // Función para mostrar predicciones con ICA
 void mostrarPrediccionesICA(Zona zonas[], PrediccionCompleta predicciones[], int cantidad) {
-    printf("\n=== PREDICCIONES DE CONTAMINACIÓN (24 HORAS) ===\n\n");
+    printf("\n=== PREDICCIONES DE CONTAMINACION (24 HORAS) ===\n\n");
     
     for (int i = 0; i < cantidad; i++) {
         printf("Zona: %s\n", zonas[i].nombre);
@@ -704,16 +774,16 @@ void mostrarPrediccionesICA(Zona zonas[], PrediccionCompleta predicciones[], int
         
         // Mostrar valores actuales vs predichos
         printf("VALORES ACTUALES:\n");
-        printf("  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f μg/m³\n", 
+        printf("  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f ug/m3\n", 
                zonas[i].co_actual, zonas[i].so2_actual, zonas[i].no2_actual, zonas[i].pm25_actual);
-        printf("  PM10: %.2f μg/m³ | O3: %.2f ppb | CO2: %.0f ppm\n", 
+        printf("  PM10: %.2f ug/m3 | O3: %.2f ppb | CO2: %.0f ppm\n", 
                zonas[i].pm10_actual, zonas[i].o3_actual, zonas[i].co2_actual);
         
         printf("PREDICCIÓN 24H:\n");
-        printf("  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f μg/m³\n", 
+        printf("  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f ug/m3\n", 
                predicciones[i].co_pred, predicciones[i].so2_pred, 
                predicciones[i].no2_pred, predicciones[i].pm25_pred);
-        printf("  PM10: %.2f μg/m³ | O3: %.2f ppb | CO2: %.0f ppm\n", 
+        printf("  PM10: %.2f ug/m3 | O3: %.2f ppb | CO2: %.0f ppm\n", 
                predicciones[i].pm10_pred, predicciones[i].o3_pred, predicciones[i].co2_pred);
         
         // Mostrar cambios esperados
@@ -733,7 +803,7 @@ void mostrarPrediccionesICA(Zona zonas[], PrediccionCompleta predicciones[], int
                predicciones[i].ica_predicho, predicciones[i].categoria_predicha, 
                predicciones[i].color_predicho);
         printf("Contaminante dominante esperado: %s\n", predicciones[i].contaminante_dominante_pred);
-        printf("Confianza de predicción: %.0f%%\n", predicciones[i].confianza * 100);
+        printf("Confianza de prediccion: %.0f%%\n", predicciones[i].confianza * 100);
         
         printf("========================================\n\n");
     }
@@ -748,7 +818,6 @@ void exportarReporte(Zona zonas[], int cantidad, const char* filename, Prediccio
     }
     
     fprintf(file, "=== REPORTE DE CALIDAD DEL AIRE CON ICA ===\n\n");
-    fprintf(file, "Fecha del reporte: [Agregar fecha actual]\n\n");
     
     for (int i = 0; i < cantidad; i++) {
         char contaminante_dominante[10];
@@ -759,7 +828,7 @@ void exportarReporte(Zona zonas[], int cantidad, const char* filename, Prediccio
         
         fprintf(file, "ZONA: %s\n", zonas[i].nombre);
         fprintf(file, "ICA: %.0f\n", ica);
-        fprintf(file, "Categoría: %s (%s)\n", categoria, color);
+        fprintf(file, "Categoria: %s (%s)\n", categoria, color);
         fprintf(file, "Contaminante dominante: %s\n", contaminante_dominante);
         
         fprintf(file, "\nConcentraciones actuales:\n");
@@ -770,7 +839,7 @@ void exportarReporte(Zona zonas[], int cantidad, const char* filename, Prediccio
         fprintf(file, "- NO2: %.2f ppb\n", zonas[i].no2_actual);
         fprintf(file, "- O3: %.2f ppb\n", zonas[i].o3_actual);
         
-        fprintf(file, "\nCondiciones meteorológicas:\n");
+        fprintf(file, "\nCondiciones meteorologicas:\n");
         fprintf(file, "- Temperatura: %.1f°C\n", zonas[i].temperatura);
         fprintf(file, "- Viento: %.1f km/h\n", zonas[i].viento);
         fprintf(file, "- Humedad: %.1f%%\n", zonas[i].humedad);
@@ -778,7 +847,7 @@ void exportarReporte(Zona zonas[], int cantidad, const char* filename, Prediccio
     }
     
     // Predicción
-    fprintf(file, "\n=== PREDICCIONES DE CONTAMINACIÓN (24 HORAS) ===\n\n");
+    fprintf(file, "\n=== PREDICCIONES DE CONTAMINACION (24 HORAS) ===\n\n");
     
     for (int i = 0; i < cantidad; i++) {
         fprintf(file, "Zona: %s\n", zonas[i].nombre);
@@ -786,17 +855,17 @@ void exportarReporte(Zona zonas[], int cantidad, const char* filename, Prediccio
         
         // Mostrar valores actuales vs predichos
         fprintf(file, "VALORES ACTUALES:\n");
-        fprintf(file, "  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f μg/m³ | PM10: %+.1f%% | O3: %+.1f%% | CO2: %+.1f%%\n", 
+        fprintf(file, "  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f ug/m3 | PM10: %+.1f%% | O3: %+.1f%% | CO2: %+.1f%%\n", 
                zonas[i].co_actual, zonas[i].so2_actual, zonas[i].no2_actual, zonas[i].pm25_actual, zonas[i].pm10_actual , zonas[i].o3_actual, zonas[i].co2_actual);
         
-        fprintf(file, "PREDICCIÓN 24H:\n");
-        fprintf(file, "  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f μg/m³ | PM10: %+.1f%% | O3: %+.1f%% | CO2: %+.1f%%\n", 
+        fprintf(file, "PREDICCION 24H:\n");
+        fprintf(file, "  CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f ug/m3 | PM10: %+.1f%% | O3: %+.1f%% | CO2: %+.1f%%\n", 
                predicciones[i].co_pred, predicciones[i].so2_pred, 
                predicciones[i].no2_pred, predicciones[i].pm25_pred, predicciones[i].pm10_pred , predicciones[i].o3_pred, predicciones[i].co2_pred);
         
         // Mostrar cambios esperados (con validación para evitar división por cero)
         fprintf(file, "CAMBIOS ESPERADOS:\n");
-        fprintf(file, "   CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f μg/m³ | PM10: %+.1f%% | O3: %+.1f%% | CO2: %+.1f%%\n",
+        fprintf(file, "   CO: %.2f ppm | SO2: %.2f ppb | NO2: %.2f ppb | PM2.5: %.2f ug/m³ | PM10: %+.1f%% | O3: %+.1f%% | CO2: %+.1f%%\n",
                (zonas[i].co_actual != 0) ? ((predicciones[i].co_pred - zonas[i].co_actual) / zonas[i].co_actual) * 100 : 0,
                (zonas[i].so2_actual != 0) ? ((predicciones[i].so2_pred - zonas[i].so2_actual) / zonas[i].so2_actual) * 100 : 0,
                (zonas[i].no2_actual != 0) ? ((predicciones[i].no2_pred - zonas[i].no2_actual) / zonas[i].no2_actual) * 100 : 0,
@@ -810,7 +879,7 @@ void exportarReporte(Zona zonas[], int cantidad, const char* filename, Prediccio
                predicciones[i].ica_predicho, predicciones[i].categoria_predicha, 
                predicciones[i].color_predicho);
         fprintf(file, "Contaminante dominante esperado: %s\n", predicciones[i].contaminante_dominante_pred);
-        fprintf(file, "Confianza de predicción: %.0f%%\n", predicciones[i].confianza * 100);
+        fprintf(file, "Confianza de prediccion: %.0f%%\n", predicciones[i].confianza * 100);
         
         fprintf(file, "========================================\n\n");
     }
